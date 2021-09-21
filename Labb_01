@@ -1,0 +1,41 @@
+#Kod skriven av jamli103@student.liu.se
+
+import bpy
+
+cubes = list(bpy.data.collections["cubes"].objects)
+positions = []
+sizes = []
+
+#Lägger till storlekar och positioner av vartenda objekt i respektive lista
+for obj in cubes:
+    positions.append(obj.location.x)
+    sizes.append(obj.dimensions.x)
+    
+
+    
+#Sorterar Position genom bubblesort
+#len(positions) -1 då vi annars hamnar out of range när vi jämför sista värdet
+n = len(positions) -1
+
+for j in range(n,0,-1):
+    for i in range(j):
+        #Jämför två tal i listan och byter deras plats om statementet stämmer
+        if positions[i] > positions[i+1]:
+            positions[i], positions[i+1] = positions[i+1], positions[i]
+        n = n-1
+
+#Sorterar Sizes genom bubblesort
+n = len(sizes) -1
+#Från 12 till 0 i steg av -1
+for j in range(n,0,-1):
+    for i in range(j):
+        #Jämför två tal i listan och byter deras plats om statementet stämmer
+        if sizes[i] > sizes[i+1]:
+            sizes[i], sizes[i+1] = sizes[i+1], sizes[i]
+        n = n-1
+#Går igenom varje objekt i cubes och matchar x storlek med passande x position   
+for obj in cubes:
+    for i in range(len(cubes)):
+        if obj.dimensions.x == sizes[i]:
+            obj.location.x = positions[i]
+        
