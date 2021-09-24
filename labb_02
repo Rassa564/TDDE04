@@ -1,4 +1,5 @@
-# Skriv namn på de som lämnat in här i kommentaren för enklare tillgång
+# Skriv namn på de som lämnat in här i kommentaren för enklare tillgång: Rasmus och Jamiro DPU1.C
+
 import bpy 
 from mathutils import Vector
 from random import uniform
@@ -11,8 +12,9 @@ flowerList = list(bpy.data.collections["add"].objects)
 flowerPos = []
 
 help = bpy.data.texts["helper"].as_module()
+
 #if len(list(bpy.data.collections["add"].objects)) > 0:
-#    help.clean("add")
+ #   help.clean("add")
     
     
 def distance_vec(point1: Vector, point2: Vector) -> float:
@@ -26,6 +28,8 @@ def randomray():
     r.normalize()
     return r
 
+#print(distance_vec(flowerList[0].location,flowerList[159].location))
+
 while len(flowerList) < 200:
     rand_ray = randomray()
 
@@ -38,18 +42,14 @@ while len(flowerList) < 200:
 
     #print(planet.data.polygons[poly_ind].material_index)
  
-    if hit and planet.data.polygons[poly_ind].material_index == 0:
-        up = Vector((0.0, 0.0, 1.0))
-        #rot = up.rotation_difference(norm).to_euler()
-        #blomma.rotation_euler = rot
-        help.copy_obj(blomma, "add", loc.copy(), norm)
-        
-        ####################################################
-        #Koden funkar fram hit
-        if len(flowerList) > 1:
-            for obj in flowerList:
-                for i in range(len(flowerList)):
-                    if distance_vec(flowerList[i].location, flowerList[i-1].location) < 3:
-                       print(distance_vec(flowerList[i].location, flowerList[i-1].location))
+    if len(flowerList) == 0:
+        if hit and planet.data.polygons[poly_ind].material_index == 0:
+            up = Vector((0.0, 0.0, 1.0))
+            help.copy_obj(blomma, "add", loc.copy(), norm)
+            
+#    elif hit and planet.data.polygons[poly_ind].material_index == 0 and distance_vec(flowerList[-1]-location, loc) > 0.4:
+#        up = Vector((0.0, 0.0, 1.0))
+#        help.copy_obj(blomma, "add", loc.copy(), norm)
+
             
         
