@@ -1,55 +1,65 @@
-# Skriv namn på de som lämnat in här i kommentaren för enklare tillgång: Rasmus och Jamiro DPU1.C
-
-import bpy 
-from mathutils import Vector
+#Kod skriven av Jamli103 samt rassa564
+import bpy
+from mathutils import Vector 
 from random import uniform
 
-
-up = Vector((0.0, 0.0, 1.0))
-planet = bpy.data.objects["planet"]
-blomma = bpy.data.objects["blomma"]
-flowerList = list(bpy.data.collections["add"].objects)
-flowerPos = []
-
+#Import help modules, clean removes all objects in a collection
 help = bpy.data.texts["helper"].as_module()
+help.clean("add")
 
-#if len(list(bpy.data.collections["add"].objects)) > 0:
- #   help.clean("add")
-    
-    
-def distance_vec(point1: Vector, point2: Vector) -> float:
-    return (point2 - point1).length 
 
+flowerList = list(bpy.data.collections["add"].objects)
+planet = bpy.data.objects["planet"]
+flower = bpy.data.objects["blomma"]
+locations = []
+up = Vector((0.0 , 0.0 , 1.0))
 
 def randomray():
-    r = Vector((uniform(-1,1),uniform(-1,1),uniform(-1,1)))
+    r = Vector((uniform(-1,1), uniform(-1,1), uniform(-1,1)))
     while r.magnitude == 0.0:
-        r = Vector((uniform(-1,1),uniform(-1,1),uniform(-1,1)))
+        r = Vector((uniform(-1,1), uniform(-1,1), uniform(-1,1)))
     r.normalize()
     return r
 
-#print(distance_vec(flowerList[0].location,flowerList[159].location))
+def removeObject(object):
+    bpy.data.objects.remove(object, do_unlink=True)
+    bpy.ops.outliner.orphans_purge()  
 
-while len(flowerList) < 200:
+#Running the loop 201 times ensures atleast 200 flowers are placed
+while len(flowerList) < 201:
+
     rand_ray = randomray()
 
     dp = bpy.context.view_layer.depsgraph
     begin = planet.location + rand_ray*10
-    direction = planet.location - begin
-
+    direction = planet.location - begin 
+    
     res = bpy.context.scene.ray_cast(dp, begin, direction)
     hit, loc, norm, poly_ind, obj, mtrx = res
+    #Gets the hit polygons material index, 0 == grass 
+    materialInd = planet.data.polygons[poly_ind].material_index
+    
+    #The first flower is always placed and never removed
+    if hit and materialInd == 0 and len(flowerList) == 0:
 
-    #print(planet.data.polygons[poly_ind].material_index)
- 
-    if len(flowerList) == 0:
-        if hit and planet.data.polygons[poly_ind].material_index == 0:
             up = Vector((0.0, 0.0, 1.0))
-            help.copy_obj(blomma, "add", loc.copy(), norm)
-            
-#    elif hit and planet.data.polygons[poly_ind].material_index == 0 and distance_vec(flowerList[-1]-location, loc) > 0.4:
-#        up = Vector((0.0, 0.0, 1.0))
-#        help.copy_obj(blomma, "add", loc.copy(), norm)
+            rot = up.rotation_difference(norm).to_euler()
+            flower.rotation_euler = rot
+            help.copy_obj(flower, "add", loc.copy(), norm)
+            flowerList = list(bpy.data.collections["add"].objects)
+            locations.append(loc)
 
-            
+    elif hit and materialInd == 0:
         
+            up = Vector((0.0, 0.0, 1.0))
+            rot = up.rotation_difference(norm).to_euler()
+            flower.rotation_euler = rot
+            help.copy_obj(flower, "add", loc.copy(), norm)
+            flowerList = list(bpy.data.collections["add"].objects)
+            #Compares each flower location and removes the latest if it is to close
+            for i in locations:
+                if (i - loc).magnitude < 0.35 and len(flowerList) > 1:
+                    removeObject(flowerList[-1])
+                    break
+            locations.append(loc)
+            
